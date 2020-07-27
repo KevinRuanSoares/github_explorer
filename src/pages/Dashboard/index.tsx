@@ -1,51 +1,70 @@
-import React from 'react';
+import React, { useState, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
-import { Title, Form, Repositories } from './style';
+import api from '../../services/api';
+import { Title, Form, Repositories, Error } from './style';
 import logoImg from '../../assets/logo.svg';
 
+interface Repository {
+  full_name: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
+
 const Dashboard: React.FC = () => {
+  const [newRepo, setNewRepo] = useState('');
+  const [inputError, setInputError] = useState('');
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  async function handleAddRepository(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!newRepo) {
+      setInputError('Digite o autor/nome do repositório');
+      return;
+    }
+    try {
+      const response = await api.get<Repository>(`repos/${newRepo}`);
+      const repository = response.data;
+      setRepositories([...repositories, repository]);
+      setNewRepo('');
+      setInputError('');
+    } catch (err) {
+      setInputError('Error na busca por esse repositório');
+    }
+  }
+
   return (
     <>
       <img src={logoImg} alt="Github Explorer" />
       <Title>Explore repositórios no Github</Title>
-      <Form>
-        <input placeholder="Digite o nome do repositório" />
+      <Form hasError={!!inputError} onSubmit={handleAddRepository}>
+        <input
+          value={newRepo}
+          placeholder="Digite o nome do repositório"
+          onChange={e => setNewRepo(e.target.value)}
+        />
         <button type="submit"> Pesquisar </button>
       </Form>
+
+      { inputError && <Error>{inputError}</Error>}
+
       <Repositories>
-        <a href="teste">
-          <img
-            src="https://avatars2.githubusercontent.com/u/30422336?s=400&u=bd1160ad1ed9d11452418707f9471dd0c5957d6a&v=4"
-            alt="Kevin Ruan Soares"
-          />
-          <div>
-            <strong>kevinruansoares/connectserver</strong>
-            <p>Projeto realizado afim de fixar os fundamentos de Electron;</p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars2.githubusercontent.com/u/30422336?s=400&u=bd1160ad1ed9d11452418707f9471dd0c5957d6a&v=4"
-            alt="Kevin Ruan Soares"
-          />
-          <div>
-            <strong>kevinruansoares/connectserver</strong>
-            <p>Projeto realizado afim de fixar os fundamentos de Electron;</p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
-        <a href="teste">
-          <img
-            src="https://avatars2.githubusercontent.com/u/30422336?s=400&u=bd1160ad1ed9d11452418707f9471dd0c5957d6a&v=4"
-            alt="Kevin Ruan Soares"
-          />
-          <div>
-            <strong>kevinruansoares/connectserver</strong>
-            <p>Projeto realizado afim de fixar os fundamentos de Electron;</p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
+        {repositories.map(repository => (
+          <a key={repository.full_name} href="teste">
+            <img
+              src={repository.owner.avatar_url}
+              alt={repository.owner.login}
+            />
+            <div>
+              <strong>{repository.full_name}</strong>
+              <p>{repository.description}</p>
+            </div>
+            <FiChevronRight size={20} />
+          </a>
+        ))}
       </Repositories>
     </>
   );

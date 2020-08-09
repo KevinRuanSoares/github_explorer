@@ -1,2 +1,2 @@
 # github_explorer
-![img](https://githubexplorer.kevinrsoares.com.br)
+<img alt="Github Explorer" src="https://githubexplorer.kevinrsoares.com.br" />

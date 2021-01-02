@@ -1,6 +1,7 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import packageJson from '../../../package.json';
 import api from '../../services/api';
 import { Title, Form, Repositories, Error } from './style';
 import logoImg from '../../assets/logo.svg';
@@ -51,7 +52,7 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <img src={logoImg} alt="Github Explorer" />
-      <Title>Explore repositórios no Github</Title>
+      <Title>Explore repositórios no Github - {packageJson.version}</Title>
       <Form hasError={!!inputError} onSubmit={handleAddRepository}>
         <input
           value={newRepo}
